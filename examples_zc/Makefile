@@ -1,0 +1,92 @@
+#
+# PF_RING
+#
+PFRINGDIR  = ../lib
+LIBPFRING  = ${PFRINGDIR}/libpfring.a
+
+#
+# PF_RING aware libpcap
+#
+PCAPDIR    = ../libpcap-1.1.1-ring
+LIBPCAP    = ${PCAPDIR}/libpcap.a
+
+#
+# Search directories
+#
+PFRING_KERNEL=../../kernel
+INCLUDE    = -I${PFRINGDIR} -I${PFRING_KERNEL}
+
+#
+# User and System libraries
+#
+LIBS       = ${LIBPFRING}   $(LIBPCAP) -lpthread  -lrt -lnuma
+
+#
+# C compiler and flags
+#
+CC         = ${CROSS_COMPILE}gcc
+CFLAGS     = -O2 -Wall  ${INCLUDE}
+
+%.o: %.c zutils.c
+	${CC} ${CFLAGS} -c $< -o $@
+
+#
+# Main targets
+#
+PFPROGS   = 
+
+ifneq (-D HAVE_PF_RING_ZC,)
+	PFPROGS += zcount zbounce zbounce_ipc zpipeline zbalance zsend zcount_ipc zfanout_ipc zbalance_ipc zpipeline_ipc zfifo zreplicator pingpong nsend nrecv
+endif
+
+TARGETS   =  ${PFPROGS}
+
+all: ${TARGETS}
+
+zcount: zcount.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zcount.o ${LIBS} -o $@
+
+zpipeline: zpipeline.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zpipeline.o ${LIBS} -o $@
+
+zbounce: zbounce.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zbounce.o ${LIBS} -o $@
+
+zbalance: zbalance.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zbalance.o ${LIBS} -o $@
+
+zfifo: zfifo.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zfifo.o ${LIBS} -o $@
+
+zsend: zsend.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zsend.o ${LIBS} -o $@
+
+zfanout_ipc: zfanout_ipc.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zfanout_ipc.o ${LIBS} -o $@
+
+zbalance_ipc: zbalance_ipc.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zbalance_ipc.o ${LIBS} -o $@
+
+zcount_ipc: zcount_ipc.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zcount_ipc.o ${LIBS} -o $@
+
+zpipeline_ipc: zpipeline_ipc.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zpipeline_ipc.o ${LIBS} -o $@
+
+zbounce_ipc: zbounce_ipc.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zbounce_ipc.o ${LIBS} -o $@
+
+zreplicator: zreplicator.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} zreplicator.o ${LIBS} -o $@
+
+pingpong: pingpong.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} pingpong.o ${LIBS} -o $@
+
+nsend: nsend.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} nsend.o ${LIBS} -o $@
+
+nrecv: nrecv.o ${LIBPFRING} Makefile
+	${CC} ${CFLAGS} nrecv.o ${LIBS} -o $@
+
+clean:
+	@rm -f ${TARGETS} *.o *~ config.*
